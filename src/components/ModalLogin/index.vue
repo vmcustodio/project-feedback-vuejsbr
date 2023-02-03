@@ -19,7 +19,7 @@
           placeholder="jane.dae@gmail.com"
         />
         <span
-          v-if="!!state.email.erroMessage"
+          v-if="!!state.email.errorMessage"
           class="block font-medium text-brand-danger"
         >
           {{ state.email.errorMessage }}
@@ -59,18 +59,23 @@
 
 <script>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useField } from 'vee-validate'
+import { useToast } from 'vue-toastification'
 import useModal from '../../hooks/useModal'
 import {
   validateEmptyAndLenght3,
   validateEmptyAndEmail
 } from '../../utils/validators'
+import services from '../../services/auth'
 
 export default {
   // eslint-disable-next-line space-before-function-paren
   setup() {
     // eslint-disable-next-line no-undef
+    const router = useRouter()
     const modal = useModal()
+    const toast = useToast()
 
     const { value: emailValue, errorMessage: emailErrorMessage } = useField(
       'email',
@@ -83,7 +88,7 @@ export default {
     } = useField('password', validateEmptyAndLenght3)
 
     const state = reactive({
-      hasErros: false,
+      hasErrors: false,
       isLoading: false,
       email: {
         value: emailValue,
@@ -96,7 +101,42 @@ export default {
     })
 
     // eslint-disable-next-line space-before-function-paren
-    function handleSubmit() {}
+    async function handleSubmit() {
+      try {
+        toast.clear()
+        state.isLoading = true
+        const { data, errors } = await services.auth.login({
+          email: state.email.value,
+          password: state.password.value
+        })
+
+        if (!errors) {
+          window.localStorage.setItem('token', data.token)
+          router.push({ name: 'Feedbacks' })
+          state.isLoading = false
+          modal.close()
+          return
+        }
+
+        if (errors.status === 404) {
+          toast.error('E-mail não encontrado')
+        }
+
+        if (errors.status === 401) {
+          toast.error('E-mail ou senha inválidos')
+        }
+
+        if (errors.status === 400) {
+          toast.error('Ocorreu um erro ao fazer o login')
+        }
+
+        state.isLoading = false
+      } catch (error) {
+        state.isLoading = false
+        state.hasErrors = !!error
+        toast.error('Ocorreu um erro ao fazer o login')
+      }
+    }
 
     return {
       state,
