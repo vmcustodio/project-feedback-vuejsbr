@@ -22,7 +22,7 @@
           v-if="!!state.email.erroMessage"
           class="block font-medium text-brand-danger"
         >
-          {{ state.email.erroMessage }}
+          {{ state.email.errorMessage }}
         </span>
       </label>
 
@@ -36,10 +36,10 @@
           placeholder="****"
         />
         <span
-          v-if="!!state.password.erroMessage"
+          v-if="!!state.password.errorMessage"
           class="block font-medium text-brand-danger"
         >
-          {{ state.password.erroMessage }}
+          {{ state.password.errorMessage }}
         </span>
       </label>
 
@@ -59,23 +59,39 @@
 
 <script>
 import { reactive } from 'vue'
+import { useField } from 'vee-validate'
 import useModal from '../../hooks/useModal'
+import {
+  validateEmptyAndLenght3,
+  validateEmptyAndEmail
+} from '../../utils/validators'
 
 export default {
   // eslint-disable-next-line space-before-function-paren
   setup() {
     // eslint-disable-next-line no-undef
     const modal = useModal()
+
+    const { value: emailValue, errorMessage: emailErrorMessage } = useField(
+      'email',
+      validateEmptyAndEmail
+    )
+
+    const {
+      value: passwordValue,
+      errorMessage: passwordErrorMessage
+    } = useField('password', validateEmptyAndLenght3)
+
     const state = reactive({
       hasErros: false,
       isLoading: false,
       email: {
-        value: '',
-        errorMessage: ''
+        value: emailValue,
+        errorMessage: emailErrorMessage
       },
       password: {
-        value: '',
-        errorMessage: ''
+        value: passwordValue,
+        errorMessage: passwordErrorMessage
       }
     })
 
