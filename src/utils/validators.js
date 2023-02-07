@@ -1,5 +1,5 @@
 // eslint-disable-next-line space-before-function-paren
-export function validateEmptyAndLenght3(value) {
+export function validateEmptyAndLength3(value) {
   // password not empty and > 3
   if (!value) {
     return '*Este campo é obrigatório'

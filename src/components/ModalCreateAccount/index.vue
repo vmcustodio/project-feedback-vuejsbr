@@ -1,8 +1,10 @@
 <template>
-  <div class="flex justify-between">
-    <h1 class="text-4xl font-black text-gray-800">Crie uma conta</h1>
+  <div class="flex justify-between" id="modal-create-account">
+    <h1 class="text-4xl font-black text-gray-800">
+      Crie uma conta
+    </h1>
 
-    <button class="text-4xl text-gray-600 focus:outline-none" @click="close">
+    <button @click="close" class="text-4xl text-gray-600 focus:outline-none">
       &times;
     </button>
   </div>
@@ -14,9 +16,11 @@
         <input
           v-model="state.name.value"
           type="text"
-          :class="{ 'border-brand-danger': !!state.name.errorMessage }"
+          :class="{
+            'border-brand-danger': !!state.name.errorMessage
+          }"
           class="block w-full px-4 py-3 mt-1 text-lg bg-gray-100 border-2 border-transparent rounded"
-          placeholder="Jane Doe"
+          placeholder="Jone Doe"
         />
         <span
           v-if="!!state.name.errorMessage"
@@ -31,7 +35,9 @@
         <input
           v-model="state.email.value"
           type="email"
-          :class="{ 'border-brand-danger': !!state.email.errorMessage }"
+          :class="{
+            'border-brand-danger': !!state.email.errorMessage
+          }"
           class="block w-full px-4 py-3 mt-1 text-lg bg-gray-100 border-2 border-transparent rounded"
           placeholder="jane.dae@gmail.com"
         />
@@ -48,9 +54,11 @@
         <input
           v-model="state.password.value"
           type="password"
-          :class="{ 'border-brand-danger': !!state.password.errorMessage }"
+          :class="{
+            'border-brand-danger': !!state.password.errorMessage
+          }"
           class="block w-full px-4 py-3 mt-1 text-lg bg-gray-100 border-2 border-transparent rounded"
-          placeholder="****"
+          placeholder="jane.dae@gmail.com"
         />
         <span
           v-if="!!state.password.errorMessage"
@@ -68,7 +76,7 @@
         }"
         class="px-8 py-3 mt-10 text-2xl font-bold text-white rounded-full bg-brand-main focus:outline-none transition-all duration-150"
       >
-        <Icon v-if="state.isLoading" name="loading" class="animate-spin" />
+        <icon v-if="state.isLoading" name="loading" class="animate-spin" />
         <span v-else>Entrar</span>
       </button>
     </form>
@@ -81,25 +89,24 @@ import { useRouter } from 'vue-router'
 import { useField } from 'vee-validate'
 import { useToast } from 'vue-toastification'
 import useModal from '../../hooks/useModal'
+import Icon from '../Icon'
 import {
-  validateEmptyAndLenght3,
+  validateEmptyAndLength3,
   validateEmptyAndEmail
 } from '../../utils/validators'
-import services from '../../services/auth'
-import Icon from '../Icon'
+import services from '../../services'
 
 export default {
   components: { Icon },
   // eslint-disable-next-line space-before-function-paren
   setup() {
-    // eslint-disable-next-line no-undef
     const router = useRouter()
     const modal = useModal()
     const toast = useToast()
 
     const { value: nameValue, errorMessage: nameErrorMessage } = useField(
       'name',
-      validateEmptyAndLenght3
+      validateEmptyAndLength3
     )
 
     const { value: emailValue, errorMessage: emailErrorMessage } = useField(
@@ -110,7 +117,7 @@ export default {
     const {
       value: passwordValue,
       errorMessage: passwordErrorMessage
-    } = useField('password', validateEmptyAndLenght3)
+    } = useField('password', validateEmptyAndLength3)
 
     const state = reactive({
       hasErrors: false,
@@ -131,18 +138,16 @@ export default {
 
     // eslint-disable-next-line space-before-function-paren
     async function login({ email, password }) {
-      const { data, errors } = await services.auth.login({
-        email,
-        password
-      })
-
+      const { data, errors } = await services.auth.login({ email, password })
       if (!errors) {
         window.localStorage.setItem('token', data.token)
         router.push({ name: 'Feedbacks' })
         modal.close()
       }
+
       state.isLoading = false
     }
+
     // eslint-disable-next-line space-before-function-paren
     async function handleSubmit() {
       try {
@@ -164,7 +169,7 @@ export default {
         }
 
         if (errors.status === 400) {
-          toast.error('Ocorreu um ao criar a conta')
+          toast.error('Ocorreu um erro ao criar a conta')
         }
 
         state.isLoading = false
